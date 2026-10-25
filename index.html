@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive request-flow architecture documentation for NexusCore ERP." />
+    <title>NexusCore Architecture Explorer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Architecture documentation</p>
+        <h1>NexusCore Request Flow</h1>
+        <p class="lede">Trace a browser request from the workspace to a bounded context, its tenant-scoped data, and asynchronous integrations.</p>
+        <p class="documentation-status"><strong>In development</strong><span>Architecture reference that is updated as services, routes, and integration boundaries evolve.</span></p>
+      </div>
+      <div class="document-meta" aria-label="Documentation metadata">
+        <div><span>Status</span><strong>In development</strong></div>
+        <div><span>Evidence snapshot</span><strong>25 Oct 2026</strong></div>
+        <button class="direction-toggle" id="direction-toggle" type="button" aria-pressed="false">RTL layout</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="control-bar" aria-label="Flow controls">
+        <div class="flow-tabs" role="tablist" aria-label="Choose a request flow">
+          <button class="flow-tab is-active" type="button" role="tab" aria-selected="true" data-flow="workspace">Workspace request</button>
+          <button class="flow-tab" type="button" role="tab" aria-selected="false" data-flow="hr">HR request</button>
+          <button class="flow-tab" type="button" role="tab" aria-selected="false" data-flow="trade">Trade and accounting</button>
+          <button class="flow-tab" type="button" role="tab" aria-selected="false" data-flow="event">Integration event</button>
+        </div>
+        <button class="reset-button" id="reset-flow" type="button">Reset view</button>
+      </section>
+
+      <section class="diagram-context" aria-label="Diagram guide">
+        <div>
+          <p class="eyebrow">How to read it</p>
+          <p>Select a request type, follow the highlighted line, then inspect a node for its owned responsibility and source evidence.</p>
+        </div>
+        <ul class="diagram-legend" aria-label="Diagram legend">
+          <li><span class="legend-dot client-dot"></span>Client and edge</li>
+          <li><span class="legend-dot service-dot"></span>Bounded context</li>
+          <li><span class="legend-dot infrastructure-dot"></span>Runtime and integration</li>
+        </ul>
+      </section>
+
+      <section class="architecture-layout" aria-label="Interactive architecture diagram">
+        <div class="diagram-shell" id="diagram-shell">
+          <svg class="connections" viewBox="0 0 1200 720" aria-hidden="true" preserveAspectRatio="none">
+            <path data-edge="workspace hr trade event" d="M177 195 C250 195 250 195 320 195" />
+            <path data-edge="workspace hr trade event" d="M505 195 C580 195 580 195 652 195" />
+            <path data-edge="workspace" d="M830 160 C880 125 900 125 965 125" />
+            <path data-edge="hr" d="M830 195 C895 195 900 245 965 245" />
+            <path data-edge="trade" d="M830 225 C895 225 900 365 965 365" />
+            <path data-edge="event" d="M830 260 C880 310 900 485 965 485" />
+            <path data-edge="hr" d="M1035 285 C1035 370 1035 420 1035 510" />
+            <path data-edge="trade" d="M1035 405 C1035 440 1035 465 1035 510" />
+            <path data-edge="event" d="M1035 525 C930 570 700 585 575 585" />
+            <path data-edge="workspace hr trade" d="M505 240 C505 395 410 455 300 510" />
+          </svg>
+
+          <button class="node client" data-node="client" type="button" style="--x:12%;--y:18%">
+            <span class="node-kind">Client</span><strong>React + Vite</strong><small>Workspace and storefront UI</small>
+          </button>
+          <button class="node gateway" data-node="gateway" type="button" style="--x:32%;--y:18%">
+            <span class="node-kind">Edge</span><strong>API Gateway</strong><small>YARP routes, JWT and claim headers</small>
+          </button>
+          <button class="node guard" data-node="guards" type="button" style="--x:59%;--y:18%">
+            <span class="node-kind">Control plane</span><strong>Request safeguards</strong><small>Auth, authorization, tenant integrity</small>
+          </button>
+          <button class="node service master" data-node="master" type="button" style="--x:81%;--y:8%">
+            <span class="node-kind">Bounded context</span><strong>Master</strong><small>Identity, tenancy, billing and permissions</small>
+          </button>
+          <button class="node service hr" data-node="hr" type="button" style="--x:81%;--y:25%">
+            <span class="node-kind">Bounded context</span><strong>HR</strong><small>People, attendance, payroll workflows</small>
+          </button>
+          <button class="node service trade" data-node="trade" type="button" style="--x:81%;--y:42%">
+            <span class="node-kind">Bounded context</span><strong>Trade</strong><small>Inventory, purchasing, sales and POS</small>
+          </button>
+          <button class="node service accounting" data-node="accounting" type="button" style="--x:81%;--y:59%">
+            <span class="node-kind">Bounded context</span><strong>Accounting</strong><small>Journal entries and posting routes</small>
+          </button>
+          <button class="node infrastructure" data-node="database" type="button" style="--x:18%;--y:64%">
+            <span class="node-kind">Persistence</span><strong>SQL Server</strong><small>Tenant-aware service databases</small>
+          </button>
+          <button class="node infrastructure" data-node="rabbit" type="button" style="--x:43%;--y:70%">
+            <span class="node-kind">Integration</span><strong>RabbitMQ + Outbox</strong><small>Reliable asynchronous events</small>
+          </button>
+          <button class="node infrastructure" data-node="redis" type="button" style="--x:59%;--y:64%">
+            <span class="node-kind">Runtime</span><strong>Redis</strong><small>Session and distributed-cache support</small>
+          </button>
+        </div>
+
+        <aside class="detail-panel" aria-live="polite">
+          <p class="eyebrow" id="detail-kind">Select a node</p>
+          <h2 id="detail-title">System overview</h2>
+          <p id="detail-body">Choose a flow to highlight its path, or select any box to read its responsibility and architecture evidence.</p>
+          <dl id="detail-facts"></dl>
+        </aside>
+      </section>
+
+      <section class="flow-notes" aria-label="Selected flow notes">
+        <article><span class="step">1</span><h2>Authenticate</h2><p>Master validates the identity and returns claims including the tenant and role context.</p></article>
+        <article><span class="step">2</span><h2>Route and protect</h2><p>The gateway forwards only approved routes; services independently re-check tenant, lifecycle, and employee access.</p></article>
+        <article><span class="step">3</span><h2>Commit and integrate</h2><p>The bounded context writes to its owned data boundary. Outbox messages make cross-context work durable and observable.</p></article>
+      </section>
+
+      <section class="service-catalogue" aria-labelledby="service-catalogue-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Ownership reference</p><h2 id="service-catalogue-title">Service catalogue and ingress</h2></div>
+          <p>Gateway prefixes are an ingress guide, not an authorization bypass. Each service remains responsible for its own enforcement pipeline.</p>
+        </div>
+        <div class="table-wrap" tabindex="0">
+          <table>
+            <thead><tr><th>Service</th><th>Primary responsibility</th><th>Gateway ingress</th><th>Observed controls</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Master</th><td>Identity, tenancy, permissions, billing and platform administration</td><td>Identity and master routes</td><td>Authentication, authorization, security headers and rate limits</td></tr>
+              <tr><th scope="row">HR</th><td>Employees, attendance, payroll and organization workflows</td><td><code>/api/v1/hr</code>, <code>/api/v1/workspace</code></td><td>Tenant integrity, lifecycle and employee-access gates</td></tr>
+              <tr><th scope="row">Trade</th><td>Inventory, procurement, sales, POS and storefront operations</td><td><code>/api/v1/inventory</code>, <code>/api/v1/sales</code>, <code>/api/v1/pos</code></td><td>Tenant integrity, lifecycle, employee access and outbox integration</td></tr>
+              <tr><th scope="row">Accounting</th><td>Journal entries, reports and posting-route execution</td><td><code>/api/v1/accounting</code>, <code>/api/v1/finance</code></td><td>Tenant integrity, lifecycle, employee access and MassTransit consumers</td></tr>
+              <tr><th scope="row">Manufacturing</th><td>Manufacturing operations and tenant-scoped workflows</td><td><code>/api/v1/manufacturing</code></td><td>Permission policies, tenant integrity, lifecycle and employee access</td></tr>
+              <tr><th scope="row">Ecommerce</th><td>Storefront read/import contracts</td><td><code>/api/v1/ecommerce</code></td><td>JWT authorization on protected endpoints; review tenant claim handling for every new endpoint</td></tr>
+              <tr><th scope="row">Field Sales</th><td>Field workflows and sales-force actions</td><td><code>/api/v1/field</code></td><td>Authenticated controller baseline and per-caller rate limits</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="catalogue-note">For message contracts, data ownership, guard order, operational assumptions, and change rules, read <code>ARCHITECTURE.md</code> in this documentation repository.</p>
+      </section>
+    </main>
+
+    <footer>Source-derived architecture snapshot. Keep this view aligned with route, service-boundary, and integration changes. It is explanatory only, not a production control plane.</footer>
+    <script src="app.js"></script>
+  </body>
+</html>
